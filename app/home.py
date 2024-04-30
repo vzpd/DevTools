@@ -33,7 +33,7 @@ class HomeWindow(QMainWindow):
         central_widget.setLayout(vbox_layout)
 
         self.setCentralWidget(central_widget)
-        self.resize(600, 600)
+        self.resize(700, 600)
 
     def switch_tab(self):
         button = self.sender()

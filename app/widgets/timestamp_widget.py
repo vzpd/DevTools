@@ -2,10 +2,11 @@ import time
 from datetime import datetime, UTC
 
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QVBoxLayout, QLabel, QPushButton, QHBoxLayout, \
+from PySide6.QtWidgets import QVBoxLayout, QLabel, QHBoxLayout, \
     QLineEdit, QRadioButton, QButtonGroup
 from . import BaseWidget
-import pyperclip
+
+from ..core.customer_line_edit import SingleClickCopyLineEdit
 
 
 class TimestampWidget(BaseWidget):
@@ -16,11 +17,6 @@ class TimestampWidget(BaseWidget):
         self.local_tz = datetime.fromtimestamp(time.time()).astimezone().tzinfo
         self.utc_tz_radio = None
         self.local_tz_radio = None
-        self.ts_to_dt_le_result = None
-        self.ts_to_dt_le_input = None
-        self.ts_ms_copy_button = None
-        self.ts_copy_button = None
-        self.time_copy_button = None
         self.ts_ms_le = None
         self.ts_le = None
         self.time_le = None
@@ -30,6 +26,7 @@ class TimestampWidget(BaseWidget):
     def set_ui(self):
         self.update()
         v_box = QVBoxLayout()
+
 
         tz_h_box = QHBoxLayout()
         tz_radio_group = QButtonGroup()
@@ -44,81 +41,74 @@ class TimestampWidget(BaseWidget):
         tz_h_box.addWidget(self.utc_tz_radio)
         tz_h_box.addStretch()
         v_box.addLayout(tz_h_box)
+        v_box.addWidget(QLabel('灰色框单击可复制'))
 
         time_h_box = QHBoxLayout()
-        self.time_le = QLineEdit()
+        self.time_le = SingleClickCopyLineEdit()
         self.time_le.setReadOnly(True)
         self.time_le.setStyleSheet("background-color: lightgray;")
-        self.time_copy_button = QPushButton('copy')
-        self.time_copy_button.clicked.connect(lambda: pyperclip.copy(self.time_le.text()))
         time_h_box.addWidget(QLabel('当前时间:'))
         time_h_box.addWidget(self.time_le)
-        time_h_box.addWidget(self.time_copy_button)
         time_h_box.addStretch()
         v_box.addLayout(time_h_box)
 
         dt_to_ts_h_box = QHBoxLayout()
-        self.dt_le_input = QLineEdit()
-        self.dt_le_result = QLineEdit()
-        self.dt_le_result.setReadOnly(True)
-        self.dt_le_result.setStyleSheet("background-color: lightgray;")
-        self.dt_le_input.textChanged.connect(lambda: self.dt_to_ts_set_result(self.dt_le_input, self.dt_le_result))
+        self.dt_le_input = SingleClickCopyLineEdit()
+        dt_le_result = SingleClickCopyLineEdit()
+        dt_le_result.setReadOnly(True)
+        dt_le_result.setStyleSheet("background-color: lightgray;")
+        self.dt_le_input.textChanged.connect(lambda: self.dt_to_ts_set_result(self.dt_le_input, dt_le_result))
         dt_to_ts_h_box.addWidget(QLabel('时间转时间戳'))
         dt_to_ts_h_box.addWidget(self.dt_le_input)
         dt_to_ts_h_box.addWidget(QLabel(' -> '))
-        dt_to_ts_h_box.addWidget(self.dt_le_result)
+        dt_to_ts_h_box.addWidget(dt_le_result)
+
         dt_to_ts_h_box.addStretch()
         v_box.addLayout(dt_to_ts_h_box)
 
         ts_h_box = QHBoxLayout()
-        self.ts_le = QLineEdit()
+        self.ts_le = SingleClickCopyLineEdit()
         self.ts_le.setReadOnly(True)
         self.ts_le.setStyleSheet("background-color: lightgray;")
-        self.ts_copy_button = QPushButton('copy')
-        self.ts_copy_button.clicked.connect(lambda: pyperclip.copy(self.ts_le.text()))
         ts_h_box.addWidget(QLabel('当前时间戳:'))
         ts_h_box.addWidget(self.ts_le)
-        ts_h_box.addWidget(self.ts_copy_button)
         ts_h_box.addStretch()
         v_box.addLayout(ts_h_box)
 
         ts_to_dt_h_box = QHBoxLayout()
-        self.ts_to_dt_le_input = QLineEdit()
-        self.ts_to_dt_le_result = QLineEdit()
-        self.ts_to_dt_le_result.setReadOnly(True)
-        self.ts_to_dt_le_result.setStyleSheet("background-color: lightgray;")
-        self.ts_to_dt_le_input.textChanged.connect(
-            lambda: self.ts_to_dt_set_result(self.ts_to_dt_le_input, self.ts_to_dt_le_result))
-        ts_to_dt_h_box.addWidget(QLabel('时间戳转时间'))
-        ts_to_dt_h_box.addWidget(self.ts_to_dt_le_input)
+        ts_to_dt_le_input = SingleClickCopyLineEdit()
+        ts_to_dt_le_result = SingleClickCopyLineEdit()
+        ts_to_dt_le_result.setReadOnly(True)
+        ts_to_dt_le_result.setStyleSheet("background-color: lightgray;")
+        ts_to_dt_le_input.textChanged.connect(
+            lambda: self.ts_to_dt_set_result(ts_to_dt_le_input, ts_to_dt_le_result))
+        ts_to_dt_h_box.addWidget(QLabel('时间戳转时间:'))
+        ts_to_dt_h_box.addWidget(ts_to_dt_le_input)
         ts_to_dt_h_box.addWidget(QLabel(' -> '))
-        ts_to_dt_h_box.addWidget(self.ts_to_dt_le_result)
+        ts_to_dt_h_box.addWidget(ts_to_dt_le_result)
         ts_to_dt_h_box.addStretch()
         v_box.addLayout(ts_to_dt_h_box)
 
         ts_ms_h_box = QHBoxLayout()
-        self.ts_ms_le = QLineEdit()
+        self.ts_ms_le = SingleClickCopyLineEdit()
         self.ts_ms_le.setReadOnly(True)
         self.ts_ms_le.setStyleSheet("background-color: lightgray;")
-        self.ts_ms_copy_button = QPushButton('copy')
-        self.ts_ms_copy_button.clicked.connect(lambda: pyperclip.copy(self.ts_ms_le.text()))
         ts_ms_h_box.addWidget(QLabel('时间戳(毫秒):'))
         ts_ms_h_box.addWidget(self.ts_ms_le)
-        ts_ms_h_box.addWidget(self.ts_ms_copy_button)
         ts_ms_h_box.addStretch()
         v_box.addLayout(ts_ms_h_box)
 
         ts_ms_to_dt_h_box = QHBoxLayout()
-        self.ts_ms_to_dt_le_input = QLineEdit()
-        self.ts_ms_to_dt_le_result = QLineEdit()
-        self.ts_ms_to_dt_le_result.setReadOnly(True)
-        self.ts_ms_to_dt_le_result.setStyleSheet("background-color: lightgray;")
-        self.ts_ms_to_dt_le_input.textChanged.connect(
-            lambda: self.ts_ms_to_dt_set_result(self.ts_ms_to_dt_le_input, self.ts_ms_to_dt_le_result))
-        ts_ms_to_dt_h_box.addWidget(QLabel('时间戳转时间(毫秒)'))
-        ts_ms_to_dt_h_box.addWidget(self.ts_ms_to_dt_le_input)
+        ts_ms_to_dt_le_input = SingleClickCopyLineEdit()
+        ts_ms_to_dt_le_result = SingleClickCopyLineEdit()
+        ts_ms_to_dt_le_result.setReadOnly(True)
+        ts_ms_to_dt_le_result.setStyleSheet("background-color: lightgray;")
+        ts_ms_to_dt_le_input.textChanged.connect(
+            lambda: self.ts_ms_to_dt_set_result(ts_ms_to_dt_le_input, ts_ms_to_dt_le_result))
+        ts_ms_to_dt_h_box.addWidget(QLabel('时间戳转时间(毫秒):'))
+        ts_ms_to_dt_h_box.addWidget(ts_ms_to_dt_le_input)
         ts_ms_to_dt_h_box.addWidget(QLabel(' -> '))
-        ts_ms_to_dt_h_box.addWidget(self.ts_ms_to_dt_le_result)
+        ts_ms_to_dt_h_box.addWidget(ts_ms_to_dt_le_result)
         ts_ms_to_dt_h_box.addStretch()
         v_box.addLayout(ts_ms_to_dt_h_box)
 

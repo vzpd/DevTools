@@ -43,6 +43,8 @@ class JsonWidget(BaseWidget):
 
     def populate_tree(self, json_data: str):
         self.model.clear()
+        if not json_data:
+            return
         try:
             json_obj = json.loads(json_data)
             self.add_json_to_model(json_obj, self.model.invisibleRootItem(), "")
