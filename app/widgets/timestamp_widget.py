@@ -33,7 +33,7 @@ class TimestampWidget(BaseWidget):
         self.local_tz_radio = QRadioButton('local')
         self.local_tz_radio.click()
         self.local_tz_radio.clicked.connect(lambda: self.clear_all_line_edits())
-        self.utc_tz_radio = QRadioButton('utc')
+        self.utc_tz_radio = QRadioButton('utc+0')
         self.utc_tz_radio.clicked.connect(lambda: self.clear_all_line_edits())
         tz_radio_group.addButton(self.local_tz_radio)
         tz_radio_group.addButton(self.utc_tz_radio)
