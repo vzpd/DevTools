@@ -1,7 +1,14 @@
-from PySide6.QtWidgets import QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, \
-    QStackedLayout
-from app.widgets.timestamp_widget import TimestampWidget
+from PySide6.QtWidgets import (
+    QHBoxLayout,
+    QMainWindow,
+    QPushButton,
+    QStackedLayout,
+    QVBoxLayout,
+    QWidget,
+)
+
 from app.widgets.json_widget import JsonWidget
+from app.widgets.timestamp_widget import TimestampWidget
 
 
 class HomeWindow(QMainWindow):

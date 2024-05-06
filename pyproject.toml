@@ -7,10 +7,14 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "~3.12"
-pyside6 = "^6.7.0"
+pyside6 = "6.7"
 pyperclip = "^1.8.2"
 py2app = "^0.28.7"
 pyinstaller = "^6.6.0"
+isort = "^5.13.2"
+black = "^24.4.2"
+mypy = "^1.10.0"
+pydantic = "^2.7.1"
 
 
 [build-system]
@@ -27,3 +31,59 @@ priority = "primary"
 name = "DevTools"
 script = "main.py"
 semi-standalone = true
+
+
+[tool.isort]
+profile = 'black'
+skip_glob = ["proto", "app/rpc/invoker/*"]
+
+[tool.black]
+line-length = 120
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | \.env
+  | _build
+  | buck-out
+  | build
+  | dist
+  | app/rpc/invoker
+)/
+'''
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+disallow_incomplete_defs = true
+plugins = [
+    "pydantic.mypy"
+]
+follow_imports = "silent"
+warn_redundant_casts = true
+warn_unused_ignores = true
+check_untyped_defs = true
+implicit_reexport = true
+
+[[tool.mypy.overrides]]
+module = '\.venv/lib/python3\.12/site-packages/PySide6/.*'
+ignore_errors = true
+
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "*/tests/*"
+]
