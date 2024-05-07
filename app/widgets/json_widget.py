@@ -1,15 +1,18 @@
 import json
+import re
 from json import JSONDecodeError
 
-from PySide6.QtCore import QSize
-from PySide6.QtGui import QStandardItem, QStandardItemModel
+from PySide6.QtGui import QStandardItem, QStandardItemModel, QBrush
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QPlainTextEdit,
     QPushButton,
     QTreeView,
     QVBoxLayout,
+    QLineEdit,
 )
+
+from PySide6.QtCore import Qt
 
 from app.core.toast import Toast
 from app.widgets import BaseWidget
@@ -32,8 +35,13 @@ class JsonWidget(BaseWidget):
         collapse_button.clicked.connect(self.collapse_all)
 
         parse_layout = QVBoxLayout()
+
         parse_layout.addWidget(expand_button)
         parse_layout.addWidget(collapse_button)
+        regex_input = QLineEdit()
+        regex_input.setPlaceholderText("input regex")
+        regex_input.textChanged.connect(self.match_regex)
+        parse_layout.addWidget(regex_input)
         parse_layout.addWidget(self.tree_view)
 
         input_layout = QVBoxLayout()
@@ -97,3 +105,22 @@ class JsonWidget(BaseWidget):
             Toast("format success!", parent=self).show()
         except JSONDecodeError as e:
             Toast("json error!", parent=self, text_color='red').show()
+
+    def match_regex(self, regex_str: str):
+        try:
+            regex = re.compile(regex_str) if regex_str else None
+        except re.error:
+            regex = None
+
+        for row in range(self.model.rowCount()):
+            item = self.model.item(row)
+            self.highlight_item(item, regex)
+
+    def highlight_item(self, item, regex):
+        if regex and regex.search(item.text()):
+            item.setBackground(QBrush(Qt.green))
+        else:
+            item.setBackground(QBrush(Qt.transparent))
+        for i in range(item.rowCount()):
+            child = item.child(i)
+            self.highlight_item(child, regex)
