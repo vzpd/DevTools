@@ -2,17 +2,16 @@ import json
 import re
 from json import JSONDecodeError
 
-from PySide6.QtGui import QStandardItem, QStandardItemModel, QBrush
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QBrush, QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import (
     QHBoxLayout,
+    QLineEdit,
     QPlainTextEdit,
     QPushButton,
     QTreeView,
     QVBoxLayout,
-    QLineEdit,
 )
-
-from PySide6.QtCore import Qt
 
 from app.core.toast import Toast
 from app.widgets import BaseWidget
@@ -104,7 +103,7 @@ class JsonWidget(BaseWidget):
             self.json_pte.setPlainText(format_json)
             Toast("format success!", parent=self).show()
         except JSONDecodeError as e:
-            Toast("json error!", parent=self, text_color='red').show()
+            Toast("json error!", parent=self, text_color="red").show()
 
     def match_regex(self, regex_str: str):
         try:

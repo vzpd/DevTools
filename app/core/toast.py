@@ -1,16 +1,10 @@
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import (
-    QBrush,
-    QColor,
-    QFont,
-    QPainter,
-    QPen,
-)
+from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 
 class Toast(QWidget):
-    def __init__(self, text, text_color='white', parent=None, show_time: int = 1000):
+    def __init__(self, text, text_color="white", parent=None, show_time: int = 1000):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground, True)

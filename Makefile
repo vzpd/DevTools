@@ -3,7 +3,8 @@ VENV_PATH = .venv
 VENV_PYTHON = ${VENV_PATH}/bin/python3
 DEV_TOOLS_PATH = ./dist/DevTools.app
 
-create-app:
+.PHONY: app
+app:
 	@rm -rf dist build
 	@pyinstaller -n DevTools -w --clean main.py
 	@open $(DEV_TOOLS_PATH)
