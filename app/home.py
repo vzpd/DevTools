@@ -15,7 +15,7 @@ class HomeWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.stacked_layout = None
-        self.tabs = [TimestampWidget(), JsonWidget()]
+        self.tabs = [JsonWidget(), TimestampWidget()]
         self.tab_dict = {tab.name: tab for tab in self.tabs}
         self.set_ui()
 

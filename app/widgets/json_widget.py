@@ -1,6 +1,7 @@
 import json
 import re
 from json import JSONDecodeError
+from typing import AnyStr
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush, QStandardItem, QStandardItemModel
@@ -107,7 +108,7 @@ class JsonWidget(BaseWidget):
 
     def match_regex(self, regex_str: str):
         try:
-            regex = re.compile(regex_str) if regex_str else None
+            regex = re.compile(regex_str, re.IGNORECASE) if regex_str else None
         except re.error:
             regex = None
 
@@ -115,7 +116,7 @@ class JsonWidget(BaseWidget):
             item = self.model.item(row)
             self.highlight_item(item, regex)
 
-    def highlight_item(self, item, regex):
+    def highlight_item(self, item, regex: re.Pattern[AnyStr]):
         if regex and regex.search(item.text()):
             item.setBackground(QBrush(Qt.green))
         else:
