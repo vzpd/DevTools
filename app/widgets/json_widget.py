@@ -24,10 +24,13 @@ class JsonWidget(BaseWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("JSON Tree Viewer")
-
         self.tree_view = QTreeView()
         self.model = QStandardItemModel()
         self.tree_view.setModel(self.model)
+        self.json_pte = QPlainTextEdit()
+        self.set_ui()
+
+    def set_ui(self):
 
         expand_button = QPushButton("Expand All")
         expand_button.clicked.connect(self.expand_all)
@@ -45,7 +48,7 @@ class JsonWidget(BaseWidget):
         parse_layout.addWidget(self.tree_view)
 
         input_layout = QVBoxLayout()
-        self.json_pte = QPlainTextEdit()
+
         self.json_pte.setFixedWidth(300)
         self.json_pte.setPlaceholderText("input json data")
         self.json_pte.textChanged.connect(lambda: self.populate_tree(self.json_pte.toPlainText()))

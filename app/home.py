@@ -7,6 +7,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app.widgets.calculate_widget import CalculateWidget
+from app.widgets.cron_widget import CronWidget
 from app.widgets.json_widget import JsonWidget
 from app.widgets.timestamp_widget import TimestampWidget
 
@@ -15,7 +17,7 @@ class HomeWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.stacked_layout = None
-        self.tabs = [JsonWidget(), TimestampWidget()]
+        self.tabs = [JsonWidget(), TimestampWidget(), CronWidget(), CalculateWidget()]
         self.tab_dict = {tab.name: tab for tab in self.tabs}
         self.set_ui()
 

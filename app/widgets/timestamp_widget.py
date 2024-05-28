@@ -21,11 +21,11 @@ class TimestampWidget(BaseWidget):
     def __init__(self):
         super().__init__()
         self.local_tz = datetime.fromtimestamp(time.time()).astimezone().tzinfo
-        self.utc_tz_radio = None
-        self.local_tz_radio = None
-        self.ts_ms_le = None
-        self.ts_le = None
-        self.time_le = None
+        self.utc_tz_radio = QRadioButton("utc+0")
+        self.local_tz_radio = QRadioButton("local")
+        self.ts_ms_le = SingleClickCopyLineEdit()
+        self.ts_le = SingleClickCopyLineEdit()
+        self.time_le = SingleClickCopyLineEdit()
         self.set_ui()
         self.set_value()
 
@@ -35,10 +35,8 @@ class TimestampWidget(BaseWidget):
 
         tz_h_box = QHBoxLayout()
         tz_radio_group = QButtonGroup()
-        self.local_tz_radio = QRadioButton("local")
         self.local_tz_radio.click()
         self.local_tz_radio.clicked.connect(lambda: self.clear_all_line_edits())
-        self.utc_tz_radio = QRadioButton("utc+0")
         self.utc_tz_radio.clicked.connect(lambda: self.clear_all_line_edits())
         tz_radio_group.addButton(self.local_tz_radio)
         tz_radio_group.addButton(self.utc_tz_radio)
@@ -49,7 +47,6 @@ class TimestampWidget(BaseWidget):
         v_box.addWidget(QLabel("灰色框单击可复制"))
 
         time_h_box = QHBoxLayout()
-        self.time_le = SingleClickCopyLineEdit()
         self.time_le.setReadOnly(True)
         self.time_le.setStyleSheet("background-color: lightgray;")
         time_h_box.addWidget(QLabel("当前时间:"))
@@ -72,7 +69,6 @@ class TimestampWidget(BaseWidget):
         v_box.addLayout(dt_to_ts_h_box)
 
         ts_h_box = QHBoxLayout()
-        self.ts_le = SingleClickCopyLineEdit()
         self.ts_le.setReadOnly(True)
         self.ts_le.setStyleSheet("background-color: lightgray;")
         ts_h_box.addWidget(QLabel("当前时间戳:"))
@@ -94,7 +90,6 @@ class TimestampWidget(BaseWidget):
         v_box.addLayout(ts_to_dt_h_box)
 
         ts_ms_h_box = QHBoxLayout()
-        self.ts_ms_le = SingleClickCopyLineEdit()
         self.ts_ms_le.setReadOnly(True)
         self.ts_ms_le.setStyleSheet("background-color: lightgray;")
         ts_ms_h_box.addWidget(QLabel("时间戳(毫秒):"))
