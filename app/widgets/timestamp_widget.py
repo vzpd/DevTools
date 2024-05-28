@@ -45,7 +45,7 @@ class TimestampWidget(BaseWidget):
         tz_h_box.addWidget(self.utc_tz_radio)
         tz_h_box.addStretch()
         v_box.addLayout(tz_h_box)
-        v_box.addWidget(QLabel("灰色框单击可复制"))
+        v_box.addWidget(QLabel("只读输入框可左键点击复制值"))
 
         time_h_box = QHBoxLayout()
         self.time_le.setReadOnly(True)
