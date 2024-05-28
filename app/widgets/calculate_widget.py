@@ -27,6 +27,7 @@ class CalculateWidget(BaseWidget):
         self.ret_te.setReadOnly(True)
         v_box.addWidget(self.ret_te)
 
+        self.code_le.setPlaceholderText('input code')
         self.code_le.returnPressed.connect(self.execute_command)
         v_box.addWidget(self.code_le)
 

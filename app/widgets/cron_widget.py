@@ -50,6 +50,7 @@ class CronWidget(BaseWidget):
         cal_v_box = QVBoxLayout()
         cal_v_box.addWidget(self.time_le)
         self.time_le.setFixedWidth(300)
+        self.time_le.setReadOnly(True)
         self.cron_le_input.setFixedWidth(300)
         self.cron_le_input.setPlaceholderText("input cron express")
         self.cron_le_input.textChanged.connect(self.cal_cron)

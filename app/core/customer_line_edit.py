@@ -9,6 +9,7 @@ from app.core.toast import Toast
 class SingleClickCopyLineEdit(QLineEdit):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        # self.setStyleSheet("background-color: lightgray;")
 
     def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton and self.isReadOnly():

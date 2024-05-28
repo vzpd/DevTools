@@ -16,8 +16,7 @@ black = "^24.4.2"
 mypy = "^1.10.0"
 pydantic = "^2.7.1"
 croniter = "^2.0.5"
-prompt-toolkit = "^3.0.44"
-jedi = "^0.19.1"
+qdarkstyle = "^3.2.3"
 
 
 [build-system]
