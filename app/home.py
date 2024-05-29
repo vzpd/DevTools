@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QStackedLayout,
     QVBoxLayout,
-    QWidget,
+    QWidget, QFrame,
 )
 
 from app.widgets.calculate_widget import CalculateWidget
@@ -36,6 +36,9 @@ class HomeWindow(QMainWindow):
             navigate_box_layout.addWidget(button)
 
         vbox_layout.addLayout(navigate_box_layout)
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        vbox_layout.addWidget(separator)
         vbox_layout.addLayout(stacked_layout)
 
         central_widget = QWidget()
