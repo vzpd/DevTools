@@ -1,3 +1,4 @@
+from PySide6.QtGui import QIcon, QAction
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -5,9 +6,10 @@ from PySide6.QtWidgets import (
     QPushButton,
     QStackedLayout,
     QVBoxLayout,
-    QWidget,
+    QWidget, QSystemTrayIcon, QMenu, QApplication,
 )
 
+from app.utils.static import get_static_file
 from app.widgets.calculate_widget import CalculateWidget
 from app.widgets.cron_widget import CronWidget
 from app.widgets.json_widget import JsonWidget
@@ -21,6 +23,8 @@ class HomeWindow(QMainWindow):
         self.tabs = [JsonWidget(), TimestampWidget(), CronWidget(), CalculateWidget()]
         self.tab_dict = {tab.name: tab for tab in self.tabs}
         self.set_ui()
+        self.tray_icon = QSystemTrayIcon(self)
+        self.set_toolbar()
 
     def set_ui(self):
         vbox_layout = QVBoxLayout()
@@ -52,3 +56,29 @@ class HomeWindow(QMainWindow):
         button = self.sender()
         tab = self.tab_dict[button.text()]
         self.stacked_layout.setCurrentWidget(tab)
+
+    def closeEvent(self, event):
+        event.ignore()
+        self.hide()
+
+    def set_toolbar(self):
+        icon = get_static_file("assets", "toolbar", "icon.jpeg")
+        self.tray_icon.setIcon(QIcon(icon))
+
+        tray_menu = QMenu()
+        restore_action = QAction("显示窗口", self)
+        quit_action = QAction("退出", self)
+
+        tray_menu.addAction(restore_action)
+        tray_menu.addAction(quit_action)
+
+        self.tray_icon.setContextMenu(tray_menu)
+
+        restore_action.triggered.connect(self.show)
+        quit_action.triggered.connect(self.exit_app)
+
+        self.tray_icon.show()
+
+    def exit_app(self):
+        self.tray_icon.hide()
+        QApplication.instance().quit()

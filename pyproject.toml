@@ -29,11 +29,6 @@ name = "mirrors"
 url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
 priority = "primary"
 
-[tools.py2app.bundle.main]
-name = "DevTools"
-script = "main.py"
-semi-standalone = true
-
 
 [tool.isort]
 profile = 'black'
@@ -57,19 +52,3 @@ exclude = '''
   | app/rpc/invoker
 )/
 '''
-
-[tool.bandit]
-exclude_dirs = [".venv"]
-skips = []
-
-[tool.pyright]
-include = ["app"]
-exclude = [
-    "**/__pycache__",
-    ".venv"
-]
-defineConstant = { DEBUG = true }
-
-reportMissingImports = true
-reportMissingTypeStubs = false
-

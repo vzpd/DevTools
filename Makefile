@@ -6,7 +6,7 @@ DEV_TOOLS_PATH = ./dist/DevTools.app
 .PHONY: app
 app:
 	@rm -rf dist build
-	@pyinstaller -n DevTools -w --clean main.py
+	@pyinstaller DevTools.spec
 	@open $(DEV_TOOLS_PATH)
 
 
