@@ -64,21 +64,27 @@ class HomeWindow(QMainWindow):
     def set_toolbar(self):
         icon = get_static_file("assets", "toolbar", "icon.jpeg")
         self.tray_icon.setIcon(QIcon(icon))
+        self.tray_icon.activated.connect(self.show_home)
+        # tray_menu = QMenu()
+        # restore_action = QAction("显示窗口", self)
+        # quit_action = QAction("退出", self)
+        #
+        # tray_menu.addAction(restore_action)
+        # tray_menu.addAction(quit_action)
+        #
+        # self.tray_icon.setContextMenu(tray_menu)
 
-        tray_menu = QMenu()
-        restore_action = QAction("显示窗口", self)
-        quit_action = QAction("退出", self)
-
-        tray_menu.addAction(restore_action)
-        tray_menu.addAction(quit_action)
-
-        self.tray_icon.setContextMenu(tray_menu)
-
-        restore_action.triggered.connect(self.show)
-        quit_action.triggered.connect(self.exit_app)
-
+        # restore_action.triggered.connect(self.show)
+        # quit_action.triggered.connect(self.exit_app)
         self.tray_icon.show()
 
     def exit_app(self):
         self.tray_icon.hide()
         QApplication.instance().quit()
+
+    def show_home(self):
+        current_screen = QApplication.primaryScreen()
+
+        screen_geometry = current_screen.geometry()
+        self.move(screen_geometry.center() - self.rect().center())
+        self.show()

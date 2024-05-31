@@ -1,3 +1,3 @@
 import os
 
-BASE_DIR = os.path.dirname('.')
+APP_PATH = os.path.dirname(__file__)
