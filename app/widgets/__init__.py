@@ -1,5 +1,4 @@
 from PySide6.QtWidgets import QWidget
-
 from app.exceptions.run_exception import (
     WidgetNameRepeatException,
     WidgetNoNameException,
@@ -23,3 +22,6 @@ class CustomWidgetMetaClass(QWidget.__class__):
 class BaseWidget(QWidget, metaclass=CustomWidgetMetaClass):
     def __init__(self):
         super().__init__()
+
+    def switch_in(self):
+        pass

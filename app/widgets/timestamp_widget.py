@@ -166,3 +166,6 @@ class TimestampWidget(BaseWidget):
         timer = QTimer(self)
         timer.timeout.connect(self.update_time)
         timer.start(50)
+
+    def switch_in(self):
+        self.dt_input_le.setFocus()

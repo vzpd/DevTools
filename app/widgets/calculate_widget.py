@@ -45,3 +45,6 @@ class CalculateWidget(BaseWidget):
             output = f_out.getvalue() + f_err.getvalue()
 
         self.ret_te.append(f">>> {command}\n{output}")
+
+    def switch_in(self):
+        self.code_le.setFocus()

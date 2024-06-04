@@ -1,4 +1,5 @@
-from PySide6.QtGui import QIcon, QAction
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -6,7 +7,9 @@ from PySide6.QtWidgets import (
     QPushButton,
     QStackedLayout,
     QVBoxLayout,
-    QWidget, QSystemTrayIcon, QMenu, QApplication,
+    QWidget,
+    QSystemTrayIcon,
+    QApplication,
 )
 
 from app.utils.static import get_static_file
@@ -56,6 +59,7 @@ class HomeWindow(QMainWindow):
         button = self.sender()
         tab = self.tab_dict[button.text()]
         self.stacked_layout.setCurrentWidget(tab)
+        tab.switch_in()
 
     def closeEvent(self, event):
         event.ignore()
@@ -65,17 +69,6 @@ class HomeWindow(QMainWindow):
         icon = get_static_file("assets", "toolbar", "icon.jpeg")
         self.tray_icon.setIcon(QIcon(icon))
         self.tray_icon.activated.connect(self.show_home)
-        # tray_menu = QMenu()
-        # restore_action = QAction("显示窗口", self)
-        # quit_action = QAction("退出", self)
-        #
-        # tray_menu.addAction(restore_action)
-        # tray_menu.addAction(quit_action)
-        #
-        # self.tray_icon.setContextMenu(tray_menu)
-
-        # restore_action.triggered.connect(self.show)
-        # quit_action.triggered.connect(self.exit_app)
         self.tray_icon.show()
 
     def exit_app(self):
@@ -88,3 +81,8 @@ class HomeWindow(QMainWindow):
         screen_geometry = current_screen.geometry()
         self.move(screen_geometry.center() - self.rect().center())
         self.show()
+        self.raise_()
+
+    def onApplicationStateChanged(self, state):
+        if state == Qt.ApplicationActive:
+            self.show_home()

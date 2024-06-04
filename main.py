@@ -9,5 +9,6 @@ if __name__ == "__main__":
     app.setStyleSheet(qdarkstyle._load_stylesheet(qt_api="pyside6", palette=LightPalette))
     home_window = HomeWindow()
     home_window.show()
+    app.applicationStateChanged.connect(home_window.onApplicationStateChanged)
 
     sys.exit(app.exec())

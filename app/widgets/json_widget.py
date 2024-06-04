@@ -127,3 +127,6 @@ class JsonWidget(BaseWidget):
         for i in range(item.rowCount()):
             child = item.child(i)
             self.highlight_item(child, regex)
+
+    def switch_in(self):
+        self.json_pte.setFocus()

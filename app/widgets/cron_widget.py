@@ -86,3 +86,6 @@ class CronWidget(BaseWidget):
         timer = QTimer(self)
         timer.timeout.connect(self.set_time_le)
         timer.start(50)
+
+    def switch_in(self):
+        self.cron_le_input.setFocus()
