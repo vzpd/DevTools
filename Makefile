@@ -4,7 +4,7 @@ VENV_PYTHON = ${VENV_PATH}/bin/python3
 DEV_TOOLS_PATH = ./dist/DevTools.app
 
 .PHONY: app
-app:
+app: fmt
 	@rm -rf dist build
 	@pyinstaller DevTools.spec
 	@open $(DEV_TOOLS_PATH)
