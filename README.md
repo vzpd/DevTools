@@ -17,7 +17,9 @@
 ```bash
 make app
 ```
+执行完后会生成app文件：./dist/DevTools.app，将其拖入应用程序文件夹即可使用
 
+同时会自动打开生成的app文件
 
 ## Maintainers
 
