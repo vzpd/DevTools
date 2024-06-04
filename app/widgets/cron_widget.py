@@ -65,6 +65,8 @@ class CronWidget(BaseWidget):
 
     def cal_cron(self):
         cron_expression = self.cron_le_input.text()
+        if not cron_expression:
+            return
         base = datetime.now(self.get_tz())
 
         try:
