@@ -16,7 +16,6 @@ class CalculateWidget(BaseWidget):
         self.code_le = QLineEdit()
         self.interpreter = code.InteractiveInterpreter()
         self.namespace = {}
-        self.buffer = ""
         self.set_ui()
 
     def set_ui(self):
@@ -37,11 +36,7 @@ class CalculateWidget(BaseWidget):
         self.code_le.clear()
 
         with contextlib.redirect_stdout(io.StringIO()) as f_out, contextlib.redirect_stderr(io.StringIO()) as f_err:
-            more = self.interpreter.runsource(command)
-            if more:
-                self.buffer = command + "\n"
-            else:
-                self.buffer = ""
+            self.interpreter.runsource(command)
             output = f_out.getvalue() + f_err.getvalue()
 
         self.ret_te.append(f">>> {command}\n{output}")
