@@ -1,4 +1,5 @@
 import json
+import numbers
 import re
 from json import JSONDecodeError
 from typing import AnyStr
@@ -75,8 +76,14 @@ class JsonWidget(BaseWidget):
             self.model.invisibleRootItem().appendRow(QStandardItem(f"{e}"))
 
     def add_json_to_model(self, parent, obj, name=None):
+        def get_obj_str(obj_value):
+            if isinstance(obj_value, numbers.Number):
+                return f"{obj_value}"
+            else:
+                return f"\"{obj_value}\""
+
         if isinstance(obj, dict):
-            start_item = QStandardItem(f"{name}: {{") if name else QStandardItem("{")
+            start_item = QStandardItem(f"\"{name}\": {{") if name else QStandardItem("{")
 
             parent.appendRow(start_item)
             for key, value in obj.items():
@@ -84,14 +91,14 @@ class JsonWidget(BaseWidget):
             end_item = QStandardItem("}")
             parent.appendRow(end_item)
         elif isinstance(obj, list):
-            start_item = QStandardItem(f"{name}: [") if name else QStandardItem(f"[")
+            start_item = QStandardItem(f"\"{name}\": [") if name else QStandardItem("[")
             parent.appendRow(start_item)
             for _, value in enumerate(obj):
                 self.add_json_to_model(start_item, value)
             end_item = QStandardItem("]")
             parent.appendRow(end_item)
         else:
-            item = QStandardItem(f"{name}: {obj}") if name else QStandardItem(str(obj))
+            item = QStandardItem(f"\"{name}\": {get_obj_str(obj)}") if name else QStandardItem(get_obj_str(obj))
             parent.appendRow(item)
 
     def expand_all(self):
