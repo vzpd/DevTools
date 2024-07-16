@@ -15,6 +15,16 @@ from PySide6.QtWidgets import (
 
 from . import BaseWidget
 
+cron_expression_text = """
+┌────────── minute (0 - 59)
+| ┌──────── hour (0 - 23)
+| | ┌────── day of month (1 - 31)
+| | | ┌──── month (1 - 12) OR jan,feb,mar,apr ...
+| | | | ┌── day of week (0 - 6, sunday=0) OR sun,mon ...
+| | | | |
+* * * * *
+"""
+
 
 class CronWidget(BaseWidget):
     name = "cron"
@@ -25,34 +35,52 @@ class CronWidget(BaseWidget):
         self.cron_le_input = QLineEdit()
         self.time_le = QLineEdit()
         self.local_tz = datetime.fromtimestamp(time.time()).astimezone().tzinfo
+
+        self.local_tz_radio = QRadioButton("local")
+        self.utc_tz_radio = QRadioButton("utc+0")
+
         self.set_ui()
         self.set_time()
 
     def set_ui(self):
         v_box = QVBoxLayout()
 
+        v_head_box = QHBoxLayout()
+
+        input_v_box = QVBoxLayout()
         tz_h_box = QHBoxLayout()
         tz_radio_group = QButtonGroup()
-        self.local_tz_radio = QRadioButton("local")
+
         self.local_tz_radio.click()
         self.local_tz_radio.clicked.connect(self.cal_cron)
-        self.utc_tz_radio = QRadioButton("utc+0")
         self.utc_tz_radio.clicked.connect(self.cal_cron)
         tz_radio_group.addButton(self.local_tz_radio)
         tz_radio_group.addButton(self.utc_tz_radio)
         tz_h_box.addWidget(self.local_tz_radio)
         tz_h_box.addWidget(self.utc_tz_radio)
         tz_h_box.addStretch()
-        v_box.addLayout(tz_h_box)
+        input_v_box.addLayout(tz_h_box)
 
-        cal_v_box = QVBoxLayout()
-        cal_v_box.addWidget(self.time_le)
+        input_v_box.addWidget(self.time_le)
         self.time_le.setFixedWidth(300)
         self.time_le.setReadOnly(True)
         self.cron_le_input.setFixedWidth(300)
         self.cron_le_input.setPlaceholderText("input cron express")
         self.cron_le_input.textChanged.connect(self.cal_cron)
-        cal_v_box.addWidget(self.cron_le_input)
+        input_v_box.addWidget(self.cron_le_input)
+
+        v_head_box.addLayout(input_v_box)
+
+        cron_expression_show_te = QTextEdit()
+        cron_expression_show_te.setReadOnly(True)
+        cron_expression_show_te.setText(cron_expression_text)
+        cron_expression_show_te.setFixedWidth(500)
+        cron_expression_show_te.setFixedHeight(150)
+        v_head_box.addWidget(cron_expression_show_te)
+
+        v_box.addLayout(v_head_box)
+
+        cal_v_box = QVBoxLayout()
         # self.cron_ret_te.setFixedSize(600, 600)
         self.cron_ret_te.setReadOnly(True)
         cal_v_box.addWidget(self.cron_ret_te)
