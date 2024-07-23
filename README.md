@@ -6,11 +6,12 @@
 - json格式化
 - 查询crontab表达式执行时间
 - 简易python repl
+- jwt解析及校验
 
 
 ## 界面展示
 
-![json转换页面](assets/show/home.jpeg "home")
+![json转换页面](assets/show/home.png "home")
 
 
 ## 打包成可执行文件
