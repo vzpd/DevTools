@@ -19,6 +19,7 @@ croniter = "^2.0.5"
 qdarkstyle = "^3.2.3"
 
 toml = "^0.10.2"
+pyjwt = "^2.8.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

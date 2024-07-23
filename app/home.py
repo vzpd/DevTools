@@ -16,6 +16,7 @@ from app.utils.static import get_static_file
 from app.widgets.calculate_widget import CalculateWidget
 from app.widgets.cron_widget import CronWidget
 from app.widgets.json_widget import JsonWidget
+from app.widgets.jwt_widget import JwtWidget
 from app.widgets.timestamp_widget import TimestampWidget
 
 
@@ -23,7 +24,7 @@ class HomeWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.stacked_layout = None
-        self.tabs = [JsonWidget(), TimestampWidget(), CronWidget(), CalculateWidget()]
+        self.tabs = [JsonWidget(), TimestampWidget(), CronWidget(), CalculateWidget(), JwtWidget()]
         self.tab_dict = {tab.name: tab for tab in self.tabs}
         self.set_ui()
         self.tray_icon = QSystemTrayIcon(self)
