@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QRadioButton,
-    QVBoxLayout,
+    QVBoxLayout, QFrame,
 )
 
 from ..core.customer_line_edit import SingleClickCopyLineEdit
@@ -47,6 +47,11 @@ class TimestampWidget(BaseWidget):
         v_box.addLayout(tz_h_box)
         v_box.addWidget(QLabel("只读输入框可左键点击复制值"))
 
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        v_box.addWidget(separator)
+        v_box.addSpacing(30)
+
         time_h_box = QHBoxLayout()
         self.time_le.setReadOnly(True)
         time_h_box.addWidget(QLabel("当前时间:"))
@@ -67,6 +72,8 @@ class TimestampWidget(BaseWidget):
         dt_to_ts_h_box.addStretch()
         v_box.addLayout(dt_to_ts_h_box)
 
+        v_box.addSpacing(30)
+
         ts_h_box = QHBoxLayout()
         self.ts_le.setReadOnly(True)
         ts_h_box.addWidget(QLabel("当前时间戳:"))
@@ -85,6 +92,8 @@ class TimestampWidget(BaseWidget):
         ts_to_dt_h_box.addWidget(ts_to_dt_le_result)
         ts_to_dt_h_box.addStretch()
         v_box.addLayout(ts_to_dt_h_box)
+
+        v_box.addSpacing(30)
 
         ts_ms_h_box = QHBoxLayout()
         self.ts_ms_le.setReadOnly(True)
