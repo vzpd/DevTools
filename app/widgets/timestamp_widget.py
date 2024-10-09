@@ -4,11 +4,12 @@ from datetime import UTC, datetime
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
     QButtonGroup,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QRadioButton,
-    QVBoxLayout, QFrame,
+    QVBoxLayout,
 )
 
 from ..core.customer_line_edit import SingleClickCopyLineEdit
