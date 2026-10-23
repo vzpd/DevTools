@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tools"
-version = "0.1.0"
+version = "0.2.3"
 description = ""
 authors = ["zp"]
 readme = "README.md"
@@ -8,18 +8,15 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "~3.12"
 pyside6 = "6.7"
-pyperclip = "^1.8.2"
-py2app = "^0.28.7"
 pyinstaller = "^6.6.0"
 isort = "^5.13.2"
 black = "^24.4.2"
 mypy = "^1.10.0"
-pydantic = "^2.7.1"
-croniter = "^2.0.5"
-qdarkstyle = "^3.2.3"
+croniter = "^6.2.4"
 
-toml = "^0.10.2"
 pyjwt = "^2.8.0"
+tzdata = ">=2024.1"
+pyobjc-framework-Cocoa = {version = ">=10,<12", markers = "sys_platform == 'darwin'"}
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

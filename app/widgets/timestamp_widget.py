@@ -1,19 +1,25 @@
-import time
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
+from decimal import Decimal, InvalidOperation
 
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
-    QButtonGroup,
-    QFrame,
+    QApplication,
+    QComboBox,
+    QFormLayout,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QRadioButton,
+    QPushButton,
+    QToolButton,
     QVBoxLayout,
 )
 
-from ..core.customer_line_edit import SingleClickCopyLineEdit
-from . import BaseWidget
+from app.core.components import StatusLabel
+from app.core.icons import system_icon
+from app.core.timezone_selector import TimezoneSelector
+from app.utils.time_tools import parse_datetime
+from app.widgets import BaseWidget
 
 
 class TimestampWidget(BaseWidget):
@@ -21,161 +27,142 @@ class TimestampWidget(BaseWidget):
 
     def __init__(self):
         super().__init__()
-        self.local_tz = datetime.fromtimestamp(time.time()).astimezone().tzinfo
-        self.utc_tz_radio = QRadioButton("utc+0")
-        self.local_tz_radio = QRadioButton("local")
-        self.ts_ms_le = SingleClickCopyLineEdit()
-        self.ts_le = SingleClickCopyLineEdit()
-        self.time_le = SingleClickCopyLineEdit()
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        toolbar = QHBoxLayout()
+        toolbar.addWidget(QLabel("时区"))
+        self.timezone = TimezoneSelector()
+        toolbar.addWidget(self.timezone)
+        toolbar.addStretch()
+        layout.addLayout(toolbar)
+        now_group = QGroupBox("当前时间")
+        now_layout = QFormLayout(now_group)
+        now_layout.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+        self.time_le = self.add_output(now_layout, "日期时间")
+        self.ts_le = self.add_output(now_layout, "Unix 秒")
+        self.ts_ms_le = self.add_output(now_layout, "Unix 毫秒")
+        layout.addWidget(now_group)
+        timestamp_group = QGroupBox("时间戳 → 日期时间")
+        timestamp_layout = QFormLayout(timestamp_group)
+        timestamp_layout.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+        input_row = QHBoxLayout()
+        self.ts_input = QLineEdit()
+        self.ts_input.setPlaceholderText("例如 1729166400，支持负数及小数")
+        self.unit = QComboBox()
+        self.unit.addItems(["秒", "毫秒", "自动识别"])
+        self.unit.setCurrentIndex(2)
+        now_button = QPushButton("填入当前值")
+        now_button.clicked.connect(self.fill_now)
+        input_row.addWidget(self.ts_input, 1)
+        input_row.addWidget(self.unit)
+        input_row.addWidget(now_button)
+        timestamp_layout.addRow("时间戳", input_row)
+        self.date_output = self.add_output(timestamp_layout, "转换结果")
+        layout.addWidget(timestamp_group)
+        date_group = QGroupBox("日期时间 → 时间戳")
+        date_layout = QFormLayout(date_group)
+        date_layout.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
         self.dt_input_le = QLineEdit()
-        self.set_ui()
-        self.set_value()
+        self.dt_input_le.setPlaceholderText("YYYY-MM-DD HH:mm:ss.SSS 或 ISO 8601（可带时区）")
+        date_layout.addRow("日期时间", self.dt_input_le)
+        self.seconds_output = self.add_output(date_layout, "Unix 秒")
+        self.millis_output = self.add_output(date_layout, "Unix 毫秒")
+        layout.addWidget(date_group)
+        self.status = StatusLabel("无时区的日期按所选时区解析；带时区的 ISO 8601 按自身时区解析")
+        layout.addWidget(self.status)
+        layout.addStretch()
+        self.ts_input.textChanged.connect(self.convert)
+        self.dt_input_le.textChanged.connect(self.convert)
+        self.unit.currentIndexChanged.connect(self.convert)
+        self.timezone.currentTextChanged.connect(self.convert)
+        self.timezone.currentTextChanged.connect(self.update_time)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_time)
+        self.timer.start(100)
+        self.update_time()
 
-    def set_ui(self):
-        self.update()
-        v_box = QVBoxLayout()
-
-        tz_h_box = QHBoxLayout()
-        tz_radio_group = QButtonGroup()
-        self.local_tz_radio.click()
-        self.local_tz_radio.clicked.connect(lambda: self.clear_all_line_edits())
-        self.utc_tz_radio.clicked.connect(lambda: self.clear_all_line_edits())
-        tz_radio_group.addButton(self.local_tz_radio)
-        tz_radio_group.addButton(self.utc_tz_radio)
-        tz_h_box.addWidget(self.local_tz_radio)
-        tz_h_box.addWidget(self.utc_tz_radio)
-        tz_h_box.addStretch()
-        v_box.addLayout(tz_h_box)
-        v_box.addWidget(QLabel("只读输入框可左键点击复制值"))
-
-        separator = QFrame()
-        separator.setFrameShape(QFrame.HLine)
-        v_box.addWidget(separator)
-        v_box.addSpacing(30)
-
-        time_h_box = QHBoxLayout()
-        self.time_le.setReadOnly(True)
-        time_h_box.addWidget(QLabel("当前时间:"))
-        time_h_box.addWidget(self.time_le)
-        time_h_box.addStretch()
-        v_box.addLayout(time_h_box)
-
-        dt_to_ts_h_box = QHBoxLayout()
-
-        dt_ret_le = SingleClickCopyLineEdit()
-        dt_ret_le.setReadOnly(True)
-        self.dt_input_le.textChanged.connect(lambda: self.dt_to_ts_set_result(self.dt_input_le, dt_ret_le))
-        dt_to_ts_h_box.addWidget(QLabel("时间转时间戳"))
-        dt_to_ts_h_box.addWidget(self.dt_input_le)
-        dt_to_ts_h_box.addWidget(QLabel(" -> "))
-        dt_to_ts_h_box.addWidget(dt_ret_le)
-
-        dt_to_ts_h_box.addStretch()
-        v_box.addLayout(dt_to_ts_h_box)
-
-        v_box.addSpacing(30)
-
-        ts_h_box = QHBoxLayout()
-        self.ts_le.setReadOnly(True)
-        ts_h_box.addWidget(QLabel("当前时间戳:"))
-        ts_h_box.addWidget(self.ts_le)
-        ts_h_box.addStretch()
-        v_box.addLayout(ts_h_box)
-
-        ts_to_dt_h_box = QHBoxLayout()
-        ts_to_dt_input_le = QLineEdit()
-        ts_to_dt_le_result = SingleClickCopyLineEdit()
-        ts_to_dt_le_result.setReadOnly(True)
-        ts_to_dt_input_le.textChanged.connect(lambda: self.ts_to_dt_set_result(ts_to_dt_input_le, ts_to_dt_le_result))
-        ts_to_dt_h_box.addWidget(QLabel("时间戳转时间:"))
-        ts_to_dt_h_box.addWidget(ts_to_dt_input_le)
-        ts_to_dt_h_box.addWidget(QLabel(" -> "))
-        ts_to_dt_h_box.addWidget(ts_to_dt_le_result)
-        ts_to_dt_h_box.addStretch()
-        v_box.addLayout(ts_to_dt_h_box)
-
-        v_box.addSpacing(30)
-
-        ts_ms_h_box = QHBoxLayout()
-        self.ts_ms_le.setReadOnly(True)
-        ts_ms_h_box.addWidget(QLabel("时间戳(毫秒):"))
-        ts_ms_h_box.addWidget(self.ts_ms_le)
-        ts_ms_h_box.addStretch()
-        v_box.addLayout(ts_ms_h_box)
-
-        ts_ms_to_dt_h_box = QHBoxLayout()
-        ts_ms_to_dt_input_le = QLineEdit()
-        ts_ms_to_dt_le_result = SingleClickCopyLineEdit()
-        ts_ms_to_dt_le_result.setReadOnly(True)
-        ts_ms_to_dt_input_le.textChanged.connect(
-            lambda: self.ts_ms_to_dt_set_result(ts_ms_to_dt_input_le, ts_ms_to_dt_le_result)
-        )
-        ts_ms_to_dt_h_box.addWidget(QLabel("时间戳转时间(毫秒):"))
-        ts_ms_to_dt_h_box.addWidget(ts_ms_to_dt_input_le)
-        ts_ms_to_dt_h_box.addWidget(QLabel(" -> "))
-        ts_ms_to_dt_h_box.addWidget(ts_ms_to_dt_le_result)
-        ts_ms_to_dt_h_box.addStretch()
-        v_box.addLayout(ts_ms_to_dt_h_box)
-
-        v_box.addStretch()
-        self.setLayout(v_box)
-
-    def clear_all_line_edits(self):
-        for child_widget in self.findChildren(QLineEdit):
-            child_widget.clear()
-
-    def dt_to_ts_set_result(self, dt_le: QLineEdit, result_le: QLineEdit):
-        text = dt_le.text()
-        if not text:
-            return
-        try:
-
-            dt = datetime.strptime(text, "%Y-%m-%d %H:%M:%S").replace(tzinfo=self.get_tz())
-            ts = int(dt.timestamp())
-            result_le.setText(str(ts))
-        except ValueError:
-            result_le.setText("value error")
-
-    def ts_to_dt_set_result(self, le_input: QLineEdit, result_le: QLineEdit) -> None:
-        text = le_input.text()
-        if not text:
-            return
-        try:
-            ts = int(text)
-            dt = datetime.fromtimestamp(ts, tz=self.get_tz()).strftime("%Y-%m-%d %H:%M:%S")
-            result_le.setText(dt)
-        except ValueError as e:
-            result_le.setText(str(e))
-
-    def ts_ms_to_dt_set_result(self, le_input: QLineEdit, result_le: QLineEdit):
-        text = le_input.text()
-        if not text:
-            return
-        try:
-            ts = int(text) // 1000
-            dt = datetime.fromtimestamp(ts, tz=self.get_tz()).strftime("%Y-%m-%d %H:%M:%S")
-            result_le.setText(dt)
-        except ValueError as e:
-            result_le.setText(str(e))
+    @staticmethod
+    def add_output(layout, label):
+        field = QLineEdit()
+        field.setReadOnly(True)
+        row = QHBoxLayout()
+        row.addWidget(field, 1)
+        button = QToolButton()
+        button.setAutoRaise(True)
+        button.setIcon(system_icon("doc.on.doc"))
+        button.setProperty("systemSymbol", "doc.on.doc")
+        button.setToolTip(f"复制{label}")
+        button.setAccessibleName(f"复制{label}")
+        button.setMinimumSize(28, 28)
+        if button.icon().isNull():
+            button.setText("复制")
+        button.clicked.connect(lambda: QApplication.clipboard().setText(field.text()))
+        row.addWidget(button)
+        layout.addRow(label, row)
+        return field
 
     def get_tz(self):
-        return self.local_tz if self.local_tz_radio.isChecked() else UTC
+        return self.timezone.timezone()
+
+    def display_datetime(self, value):
+        return value.astimezone(self.get_tz()).isoformat(sep=" ", timespec="milliseconds")
 
     def update_time(self):
-        now = datetime.now(self.get_tz())
+        now = datetime.now(UTC)
+        micros = self.epoch_microseconds(now)
+        try:
+            self.time_le.setText(self.display_datetime(now))
+        except ValueError:
+            self.time_le.clear()
+        self.ts_le.setText(str(micros // 1_000_000))
+        self.ts_ms_le.setText(str(micros // 1000))
 
-        time_str = now.strftime("%Y-%m-%d %H:%M:%S")
-        ts = str(int(now.timestamp()))
-        ts_ms = str(int(now.timestamp() * 1000))
+    @staticmethod
+    def epoch_microseconds(value):
+        delta = value.astimezone(UTC) - datetime(1970, 1, 1, tzinfo=UTC)
+        return (delta.days * 86400 + delta.seconds) * 1_000_000 + delta.microseconds
 
-        self.time_le.setText(time_str)
-        self.ts_le.setText(ts)
-        self.ts_ms_le.setText(ts_ms)
+    def fill_now(self):
+        self.ts_input.setText(self.ts_le.text() if self.unit.currentIndex() == 0 else self.ts_ms_le.text())
 
-    def set_value(self):
-        timer = QTimer(self)
-        timer.timeout.connect(self.update_time)
-        timer.start(50)
+    def convert(self):
+        errors = []
+        try:
+            zone = self.get_tz()
+        except ValueError as error:
+            self.date_output.clear()
+            self.seconds_output.clear()
+            self.millis_output.clear()
+            self.status.set_status(str(error), "error")
+            return
+        self.date_output.clear()
+        self.seconds_output.clear()
+        self.millis_output.clear()
+        if text := self.ts_input.text().strip():
+            try:
+                number = Decimal(text)
+                if not number.is_finite() or number.copy_abs() > Decimal("1e16"):
+                    raise ValueError("时间戳超出支持范围")
+                is_millis = self.unit.currentIndex() == 1 or (
+                    self.unit.currentIndex() == 2 and number.copy_abs() >= Decimal("1e11")
+                )
+                micros = number * (1000 if is_millis else 1_000_000)
+                value = datetime(1970, 1, 1, tzinfo=UTC) + timedelta(microseconds=int(micros))
+                self.date_output.setText(self.display_datetime(value))
+            except (ValueError, OverflowError, InvalidOperation):
+                errors.append("时间戳无效或超出日期范围")
+        if text := self.dt_input_le.text().strip():
+            try:
+                value = parse_datetime(text, zone)
+                micros = self.epoch_microseconds(value)
+                self.seconds_output.setText(format(Decimal(micros) / 1_000_000, "f"))
+                self.millis_output.setText(str(micros // 1000))
+            except (ValueError, OverflowError, OSError) as error:
+                errors.append(f"日期无法解析：{error}")
+        self.status.set_status(
+            "；".join(errors) if errors else "自动模式按数值绝对值 ≥ 10¹¹ 识别毫秒；不确定时请手动选择单位",
+            "error" if errors else "neutral",
+        )
 
     def switch_in(self):
-        self.dt_input_le.setFocus()
+        self.ts_input.setFocus()

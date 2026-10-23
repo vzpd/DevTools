@@ -1,37 +1,62 @@
-## 开发小工具集合
-[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
+# DevTools
 
-使用PySide6开发。主要包含一下功能：
-- 时间和时间戳相互转换
-- json格式化
-- 查询crontab表达式执行时间
-- 简易python repl
-- jwt解析及校验
+本地开发工具箱。macOS 使用 `Control + Option + Space` 随时唤起，支持在其他应用的全屏空间内使用。
 
+## 工具
 
-## 界面展示
+| 工具 | 工作方式 |
+| --- | --- |
+| JSON | 单编辑器：粘贴后自动校验、格式化；错误标出行列并保留原文；行号旁折叠对象和数组 |
+| 时间戳 | 秒 / 毫秒自动识别、双向转换、ISO 8601、可搜索的 IANA 时区、一键复制 |
+| Cron | 五字段表达式、常用规则、可指定起算时间、时区和执行次数，显示每次执行间隔 |
+| Python | 多行编辑、缩进、高亮、末尾表达式求值、输出与错误、停止、耗时、可配置解释器及工作目录 |
+| JWT | 支持 Bearer 前缀，展示 Header / Payload，分别选择签名、时间及 issuer / audience 验证 |
+| 编码转换 | UTF-8 文本的 Base64、Base64URL、URL、HTML、Hex 和 JSON 字符串编码 / 解码 |
+| 文本对比 | 自动按行高亮增删，输出 Unified diff，可忽略行尾空格 |
+| 摘要与 UUID | SHA-256 / SHA-512 / SHA-1 / MD5 文本摘要，批量生成 1–100 个 UUID v4 |
 
-![json转换页面](assets/show/home.png "home")
+界面采用 macOS 风格：系统字体、SF Symbols、原生按钮与下拉控件、侧栏导航及浅色 / 深色外观。常用操作直接显示；文件、查找、换行、清空等放在编辑器的 `⋯` 菜单。支持浅色 / 深色外观，外观偏好会保存；不自动持久化输入、Token、密钥或代码。
 
+### JSON
 
-## 打包成可执行文件
+粘贴、导入或手动输入后，停顿 650 ms 即在后台校验并自动格式化；已经符合格式的内容不会被重写。撤销 / 重做后只校验，避免覆盖撤销结果。中文等输入法组词期间暂停校验与格式化，错误内容不会被替换。格式化保留数字精度、指数写法和重复键；支持 2 / 4 空格缩进、Unicode 转义。折叠只影响显示，复制和保存仍包含完整内容。超长单行简化语法高亮，以保持编辑响应；文本不会截断。菜单提供压缩、全部展开 / 折叠、JSON 与转义字符串互转。撤销 / 重做不会立即被自动格式化覆盖。
+
+### 使用边界
+
+- 全局唤起目前仅支持 macOS，应用需保持运行。窗口固定在最近一次唤起的桌面，切换桌面不会跟随；只有在另一桌面主动唤起时才移过去。快捷键注册失败时会显示原因，仍可通过菜单栏打开。
+- 时间戳自动模式按绝对值 ≥ 10¹¹ 识别毫秒，其他值按秒处理；不确定时手动选择单位。带偏移的 ISO 8601 按自身偏移解析，未带偏移的日期按所选时区解析。夏令时重叠或缺失的时间要求明确偏移。
+- Cron 采用日与周的 OR 语义，搜索窗口为五年。使用 croniter 6.2.4 或更新的 6.x 版本，已验证常规日程跨夏令时切换的预览。
+- Python 每次运行独立进程，变量不跨运行保留；非交互式执行，不支持 `input()`。默认 30 秒，可调整到 1–600 秒，输出上限 1 MB。代码具有当前用户权限。打包后默认使用 PATH 中的 `python3`，也可在运行配置中指定虚拟环境解释器。
+- JWT 支持 HS256 / HS384 / HS512。默认仅验签，不隐含校验时间或 issuer / audience；界面明确列出实际验证范围。时间模式只校验存在的时间声明。
+- 文本文件导入上限 10 MB；文本对比单侧上限为 1 MB / 5,000 行。文件以 UTF-8 读取和保存，保存使用原子提交。
+- 摘要按 UTF-8 字节计算，包含空格和换行；MD5 / SHA-1 不适合安全用途。
+
+## 按键
+
+保留系统常见的复制、粘贴、撤销、重做、查找操作。`Esc` 先关闭当前查找栏，再次按下收起应用；Python 可用 `Cmd + Enter`（其他平台 `Ctrl + Enter`）运行。没有额外的工具切换快捷键。
+
+关闭窗口后继续在菜单栏运行，选择菜单栏的“退出”才结束应用。
+
+## 开发
+
+需要 Python 3.12 和 Poetry：
+
 ```bash
-make app
+poetry lock
+poetry install --no-root
+poetry run python main.py
 ```
-执行完后会生成app文件：./dist/DevTools.app，将其拖入应用程序文件夹即可使用
 
-同时会自动打开生成的app文件
+也可使用已安装依赖的解释器：
 
-## Maintainers
+```bash
+make run PYTHON=/path/to/python
+make check PYTHON=/path/to/python
+make app PYTHON=/path/to/python
+```
 
-[@vzpd](https://github.com/vzpd)
-
-
-## Contributing
-
-Feel free to dive in! [Open an issue](https://github.com/vzpd/DevTools/issues/new) or submit PRs.
-
+打包生成 `dist/DevTools.app`，不会自动启动。
 
 ## License
 
-[MIT](LICENSE) © vzpd
+[MIT](LICENSE) © [vzpd](https://github.com/vzpd)

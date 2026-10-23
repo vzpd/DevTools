@@ -144,3 +144,5 @@ build
 dist
 
 poetry.lock
+.work/
+.DS_Store

@@ -46,5 +46,11 @@ app = BUNDLE(
     coll,
     name='DevTools.app',
     icon=None,
-    bundle_identifier=None,
+    bundle_identifier='com.vzpd.devtools',
+    info_plist={
+        'LSUIElement': True,
+        'NSHighResolutionCapable': True,
+        'CFBundleDisplayName': 'DevTools',
+        'CFBundleShortVersionString': '0.2.3',
+    },
 )
