@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 
 from PySide6.QtCore import QProcess, QProcessEnvironment, Qt, QTimer
-from PySide6.QtGui import QTextCursor
+from PySide6.QtGui import QFont, QFontDatabase, QTextCursor
 from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -52,6 +52,16 @@ class CalculateWidget(BaseWidget):
         layout.addWidget(hint)
         source = EditorPanel("Python 代码", "输入 Python 代码…")
         output = EditorPanel("运行结果", "输出与错误会显示在这里", read_only=True)
+        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        font.setFamilies(["Menlo", "Consolas", "DejaVu Sans Mono", font.family()])
+        font.setStyleHint(QFont.Monospace)
+        font.setFixedPitch(True)
+        font.setPointSize(12)
+        for editor in (source.editor, output.editor):
+            editor.setFont(font)
+            editor.setStyleSheet("font-size: 12pt;")
+            editor.setTabStopDistance(editor.fontMetrics().horizontalAdvance(" ") * 4)
+            editor.update_line_number_width()
         self.code_le = source.editor
         self.code_le.python_mode = True
         self.code_le.highlighter = PythonHighlighter(self.code_le.document())
