@@ -6,29 +6,31 @@ from PySide6.QtWidgets import QApplication, QPushButton, QStyleFactory
 
 LIGHT = {
     "window": "#f5f5f7",
-    "sidebar": "#ededf0",
+    "sidebar": "#ececee",
     "surface": "#ffffff",
-    "alternate": "#f9f9fb",
+    "alternate": "#fafafa",
     "text": "#1d1d1f",
     "secondary": "#6e6e73",
     "line": "#dedee3",
-    "hover": "#e4e4e9",
+    "hover": "#e2e2e7",
     "accent": "#007aff",
     "selection": "#d6e8ff",
+    "navigation": "#dcdce0",
     "success": "#24814b",
     "error": "#c93434",
 }
 DARK = {
-    "window": "#202022",
-    "sidebar": "#29292c",
+    "window": "#242426",
+    "sidebar": "#2c2c2e",
     "surface": "#1c1c1e",
     "alternate": "#262628",
     "text": "#f5f5f7",
     "secondary": "#a1a1a6",
-    "line": "#424245",
-    "hover": "#3a3a3c",
+    "line": "#404043",
+    "hover": "#38383b",
     "accent": "#0a84ff",
     "selection": "#263f61",
+    "navigation": "#454548",
     "success": "#63c981",
     "error": "#ff8d88",
 }
@@ -37,15 +39,25 @@ STYLE = Template(
 QWidget { color: $text; font-size: 13px; font-weight: 400; }
 QMainWindow, QWidget#workspace { background: $window; }
 QFrame#sidebar { background: $sidebar; border-right: 1px solid $line; }
-QLabel#brand { font-size: 15px; font-weight: 600; }
-QLabel#pageTitle { font-size: 22px; font-weight: 600; }
+QLabel#brand { font-size: 17px; font-weight: 600; }
+QFrame#windowToolbar { background: $alternate; border: none; border-bottom: 1px solid $line; }
+QWidget#toolContent { background: $surface; }
+QLabel#toolbarDescription { color: $secondary; font-size: 11px; }
+QFrame#workspaceFooter { background: $alternate; border-top: 1px solid $line; }
+QWidget#editorPanel { background: $surface; border: 1px solid $line; border-radius: 10px; }
+QWidget#editorHeader { background: $alternate; border: none; border-bottom: 1px solid $line;
+    border-top-left-radius: 10px; border-top-right-radius: 10px; }
+QLabel#shortcutHint { color: $secondary; font-size: 11px; }
+QWidget#editorPanel QPlainTextEdit { border: none; border-radius: 0px; }
+QWidget#editorPanel QLabel#editorInfo { padding: 5px 12px; }
+QLabel#pageTitle { font-size: 15px; font-weight: 600; }
 QLabel#muted, QLabel#sidebarSection { color: $secondary; font-size: 12px; }
 QLabel#sidebarSection { font-weight: 600; padding: 8px 8px 0; }
-QLabel#sectionTitle { font-size: 12px; font-weight: 600; color: $secondary; }
+QLabel#sectionTitle { font-size: 13px; font-weight: 600; color: $secondary; }
 QLabel#editorInfo { color: $secondary; font-size: 11px; padding: 2px; }
 QListWidget#navigation { background: transparent; border: none; outline: none; }
-QListWidget#navigation::item { padding: 8px 10px; margin: 2px 0; border-radius: 7px; }
-QListWidget#navigation::item:selected { background: $accent; color: #ffffff; }
+QListWidget#navigation::item { padding: 10px 10px; margin: 2px 0; border-radius: 6px; }
+QListWidget#navigation::item:selected { background: $navigation; color: $text; font-weight: 600; }
 QListWidget#navigation::item:hover:!selected { background: $hover; }
 QGroupBox { background: $surface; border: 1px solid $line; border-radius: 10px;
     margin-top: 15px; padding: 18px 14px 12px; }

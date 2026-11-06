@@ -37,7 +37,10 @@ from app.widgets.diff_widget import DiffWidget
 from app.widgets.hash_widget import HashWidget
 from app.widgets.json_widget import JsonWidget
 from app.widgets.jwt_widget import JwtWidget
+from app.widgets.radix_widget import RadixWidget
+from app.widgets.text_widget import TextWidget
 from app.widgets.timestamp_widget import TimestampWidget
+from app.widgets.url_widget import UrlWidget
 
 TOOLS = (
     ("JSON", "粘贴即校验、自动格式化，直接在编辑器内折叠", "curlybraces", JsonWidget),
@@ -48,6 +51,9 @@ TOOLS = (
     ("编码转换", "Base64 / URL / HTML / Hex / JSON 字符串", "arrow.left.arrow.right", CodecWidget),
     ("文本对比", "按行标出变更，生成可复制的 Unified diff", "doc.on.doc", DiffWidget),
     ("摘要与 UUID", "计算文本摘要，生成随机 UUID v4", "number", HashWidget),
+    ("文本整理", "按行去重、排序、去空行与大小写转换", "text.alignleft", TextWidget),
+    ("进制转换", "二、八、十、十六进制整数精确转换", "number.square", RadixWidget),
+    ("URL 解析", "拆解地址、解码路径与查询参数", "link", UrlWidget),
 )
 
 
@@ -75,66 +81,99 @@ class HomeWindow(QMainWindow):
     def set_ui(self):
         central = QWidget()
         central.setObjectName("workspace")
-        layout = QHBoxLayout(central)
+        layout = QVBoxLayout(central)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-        sidebar = QFrame()
-        sidebar.setObjectName("sidebar")
-        sidebar.setFixedWidth(196)
-        side = QVBoxLayout(sidebar)
-        side.setContentsMargins(12, 18, 12, 16)
+
+        toolbar = QFrame()
+        toolbar.setObjectName("windowToolbar")
+        toolbar_layout = QHBoxLayout(toolbar)
+        toolbar_layout.setContentsMargins(18, 12, 18, 12)
+        toolbar_layout.setSpacing(14)
         brand = QLabel("DevTools")
         brand.setObjectName("brand")
-        side.addWidget(brand)
+        brand.setFixedWidth(166)
+        toolbar_layout.addWidget(brand)
+        self.sidebar_button = QToolButton()
+        self.sidebar_button.setProperty("systemSymbol", "sidebar.left")
+        self.sidebar_button.setToolTip("显示或隐藏工具侧栏")
+        self.sidebar_button.setAccessibleName("显示或隐藏工具侧栏")
+        self.sidebar_button.setAutoRaise(True)
+        toolbar_layout.addWidget(self.sidebar_button)
+        title_layout = QVBoxLayout()
+        title_layout.setSpacing(2)
+        self.page_title = QLabel()
+        self.page_title.setObjectName("pageTitle")
+        self.description = QLabel()
+        self.description.setObjectName("toolbarDescription")
+        self.description.setWordWrap(True)
+        title_layout.addWidget(self.page_title)
+        title_layout.addWidget(self.description)
+        toolbar_layout.addLayout(title_layout, 1)
+        self.appearance = QComboBox()
+        self.appearance.setAccessibleName("外观")
+        self.appearance.addItems(["浅色外观", "深色外观"])
+        self.appearance.setCurrentIndex(1 if self.settings.value("darkMode", False, type=bool) else 0)
+        self.appearance.currentIndexChanged.connect(self.change_appearance)
+        toolbar_layout.addWidget(self.appearance)
+        layout.addWidget(toolbar)
 
-        side.addSpacing(10)
+        body = QHBoxLayout()
+        body.setContentsMargins(0, 0, 0, 0)
+        body.setSpacing(0)
+        self.sidebar = QFrame()
+        self.sidebar.setObjectName("sidebar")
+        self.sidebar.setFixedWidth(200)
+        self.sidebar_button.clicked.connect(lambda: self.sidebar.setVisible(not self.sidebar.isVisible()))
+        side = QVBoxLayout(self.sidebar)
+        side.setContentsMargins(12, 14, 12, 14)
+        side.setSpacing(10)
         self.tool_search = QLineEdit()
-        self.tool_search.setPlaceholderText("搜索")
+        self.tool_search.setPlaceholderText("搜索工具")
         self.tool_search.setObjectName("toolSearch")
         self.tool_search.setClearButtonEnabled(True)
         self.tool_search.addAction(system_icon("magnifyingglass"), QLineEdit.LeadingPosition)
         self.tool_search.textChanged.connect(self.filter_tools)
         side.addWidget(self.tool_search)
-        side.addSpacing(10)
-        section = QLabel("开发工具")
+        section = QLabel("工具")
         section.setObjectName("sidebarSection")
         side.addWidget(section)
         self.navigation = QListWidget()
-        self.navigation.setIconSize(QSize(17, 17))
+        self.navigation.setIconSize(QSize(19, 19))
         self.navigation.setObjectName("navigation")
-        for index, (title, _, symbol, _) in enumerate(TOOLS):
+        for title, description, symbol, _ in TOOLS:
             item = QListWidgetItem(title)
+            item.setToolTip(description)
             item.setIcon(system_icon(symbol))
             self.navigation.addItem(item)
         side.addWidget(self.navigation, 1)
-        self.appearance = QComboBox()
-        self.appearance.addItems(["浅色外观", "深色外观"])
-        self.appearance.setCurrentIndex(1 if self.settings.value("darkMode", False, type=bool) else 0)
-        self.appearance.currentIndexChanged.connect(self.change_appearance)
-        side.addWidget(self.appearance)
-        footer = QLabel("本地处理")
-        footer.setObjectName("muted")
-        side.addWidget(footer)
-        self.hotkey_status = StatusLabel()
-        side.addWidget(self.hotkey_status)
-        layout.addWidget(sidebar)
+        shortcut = QLabel("⌃⌥Space 唤起 / 收起")
+        shortcut.setObjectName("shortcutHint")
+        side.addWidget(shortcut)
+        body.addWidget(self.sidebar)
+
         content = QWidget()
+        content.setObjectName("toolContent")
         content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(22, 18, 22, 14)
-        content_layout.setSpacing(10)
-        self.page_title = QLabel()
-        self.page_title.setObjectName("pageTitle")
-        self.description = QLabel()
-        self.description.setObjectName("muted")
-        self.description.setWordWrap(True)
-        content_layout.addWidget(self.page_title)
-        content_layout.addWidget(self.description)
-        content_layout.addSpacing(6)
+        content_layout.setContentsMargins(18, 14, 18, 14)
         self.stack = QStackedWidget()
         for tab in self.tabs:
             self.stack.addWidget(tab)
         content_layout.addWidget(self.stack, 1)
-        layout.addWidget(content, 1)
+        body.addWidget(content, 1)
+        layout.addLayout(body, 1)
+
+        footer = QFrame()
+        footer.setObjectName("workspaceFooter")
+        footer_layout = QHBoxLayout(footer)
+        footer_layout.setContentsMargins(16, 6, 16, 6)
+        self.hotkey_status = StatusLabel()
+        self.hotkey_status.setObjectName("shortcutHint")
+        footer_layout.addWidget(self.hotkey_status, 1)
+        hint = QLabel("本地处理    Esc 收起窗口")
+        hint.setObjectName("shortcutHint")
+        footer_layout.addWidget(hint)
+        layout.addWidget(footer)
         self.setCentralWidget(central)
         self.navigation.currentRowChanged.connect(self.switch_tab)
         self.navigation.setCurrentRow(0)
@@ -149,7 +188,9 @@ class HomeWindow(QMainWindow):
             apply_theme(QApplication.instance(), dark)
             set_native_appearance(self, dark)
             for row, tool in enumerate(TOOLS):
-                self.navigation.item(row).setIcon(system_icon(tool[2], "#a1a1a6" if dark else "#6e6e73"))
+                icon = system_icon(tool[2], "#64a8ff" if dark else "#007aff")
+                icon.addPixmap(icon.pixmap(19, 19), QIcon.Selected)
+                self.navigation.item(row).setIcon(icon)
             for panel in self.findChildren(EditorPanel):
                 panel.update_icons()
             for button in self.findChildren(QToolButton):
@@ -193,7 +234,9 @@ class HomeWindow(QMainWindow):
     def set_toolbar(self):
         icon = QIcon(get_static_file("assets", "toolbar", "icon.jpeg"))
         self.setWindowIcon(icon)
-        self.tray_icon.setIcon(icon)
+        tray_icon = QIcon(get_static_file("assets", "toolbar", "tray.svg"))
+        tray_icon.setIsMask(True)
+        self.tray_icon.setIcon(tray_icon)
         self.tray_icon.setToolTip("DevTools")
         menu = QMenu(self)
         show = QAction("打开 DevTools · ⌃⌥Space", self)
